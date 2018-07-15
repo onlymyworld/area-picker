@@ -111,20 +111,44 @@ export default {
 					};
 				})
 			);
+			if (this.mode === "2") {
+				var ln = this.current.length;
+				switch (ln) {
+					case 1:
+						this.$emit("onload", {
+							level: 0
+						});
+						this.currentIndex = 0;
+						break;
+					case 2:
+						this.$emit("onload", {
+							level: 1,
+							level_code: this.current[0][this.clue]
+						});
+						this.currentIndex = 1;
+						break;
+					case 3:
+						this.$emit("onload", {
+							level: 2,
+							level_code: this.current[1][this.clue]
+						});
+						this.currentIndex = 2;
+						break;
+				}
+			} else if (this.mode === "1") {
+				this.showCurrent(this.current[0], 0);
+			}
+		} else {
+			if (this.mode === "1" || this.mode === "2") {
+				this.showCurrent(this.current[0], 0);
+			}
 		}
+
 		if (this.mode === "0") {
 			this.list = data;
 			this.showList = this.list;
 			this.handlerRecover();
 			return;
-		} else if (this.mode === "2") {
-			this.$emit("onload", {
-				level: 2,
-				level_code: this.current[1][this.clue]
-			});
-			this.currentIndex = 2;
-		} else if (this.mode === "1") {
-			this.showCurrent(this.current[0], 0);
 		}
 	},
 	watch: {
@@ -136,6 +160,7 @@ export default {
 			this.showList = this.initlist;
 			//once load data
 			if (this.mode === "1") {
+				//重组数据
 				this.list = this.orgData(this.initlist, 0);
 				//存在原始值，读区值
 				this.handlerRecover();
@@ -171,6 +196,20 @@ export default {
 		}
 	},
 	methods: {
+		closeDropdown() {
+			this.showPanel = false;
+		},
+		toggleDropdown() {
+			this.showPanel = !this.showPanel;
+			//有默认值，清除默认值后展示面板，加载一级目录数据
+			if (
+				this.showPanel &&
+				JSON.stringify(this.list) === "{}" &&
+				this.currentIndex === 0
+			) {
+				this.getProvince();
+			}
+		},
 		handlerRecover() {
 			const ctl = this.current.length;
 			switch (ctl) {
@@ -184,12 +223,6 @@ export default {
 					break;
 			}
 			return;
-		},
-		closeDropdown() {
-			this.showPanel = false;
-		},
-		toggleDropdown() {
-			this.showPanel = !this.showPanel;
 		},
 		//重组数据，
 		orgData(data, parent_id) {
@@ -352,6 +385,7 @@ export default {
 			this.current = [{ name: "请选择" }];
 			this.showList = this.list;
 			this.currentIndex = 0;
+			this.$emit("onchange", this.finish);
 		}
 	}
 };
