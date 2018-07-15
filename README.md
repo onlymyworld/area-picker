@@ -45,20 +45,19 @@ export default {
 
 ##### 一次性加载所有数据
 
+注意：mode = 1,可以使用 v-model 获取修改后的数据；
+
 ```
 <template>
     <area-picker
 	    	@onload = "loadData"
 	    	@onchange ="getChoosed"
 	    	mode="1"
-	    	pid ="area_parent_id"
 	    	:initlist="initlist"
-	    	:initShowList="initShowList"
-	    	child="child"
-	    	clue="id"
-	    	name="area_name"
+	    	:initShowList="initShowList",
+	    	v-model="initShowList"
 	    	label="省市区">
-    	</area-picker>
+    </area-picker>
 </template>
 
 <script>
@@ -81,13 +80,14 @@ export default {
 		    //数据请求成功后
 		    this.initList = result;
 		}
-
 	}
 };
 </script>
 ```
 
 ##### 分块加载数据
+
+注意：设置 mode=2;
 
 ```
 <template>
@@ -96,8 +96,6 @@ export default {
 	    	@onchange ="getChoosed"
 	    	:initlist="initlist"
 	    	mode="2"
-	    	clue="id"
-	    	name="area_name"
 	    	label="地址">
     	</area-picker>
 </template>
@@ -141,14 +139,7 @@ export default {
 <script>
 export default {
 	data() {
-	    //自定义验证规则
-	    var validateAddress = (rule, value, callback) => {
-			if (value === "") {
-				callback(new Error("请选择地址！"));
-			} else {
-				callback();
-			}
-		};
+	    //可参照form-item设置自定义验证规则
 		return {
 		    customForm: {
 				address: "",
@@ -158,9 +149,6 @@ export default {
 					{
 						required: true,
 						message: "请选择地址"
-					},
-					{
-						validator: validateAddress
 					}
 				]
 			},
@@ -185,12 +173,13 @@ export default {
 | clue         | 显示值                                                  | String  | id        |
 | name         | 对象显示名                                              | String  | area_name |
 | label        | 标签名                                                  | String  | "地址"    |
+| initlist     | 数据：（分片/一次）请求数据                             | Array   | -         |
+| initShowList | 设置默认值                                              | Array   | -         |
+| pid          | 当一次性加载数据时，重组数据时的关联字段                | String  | parent_id |
+| child        | 数据层级名称定义                                        | String  | child     |
 | vbeauty      | 是否使用 form-item,如果为 true,则可以设置表单验证内容， | Boolean | false     |
+| v-model      | 双向绑定数据【兼容 form-item 时需要】，                 | -       | -         |
 | prop         | vbeauty = true 时，对应表单中的字段名称                 | String  | -         |
-| pid          | 当一次性加载数据时，重组数据时的关联字段                | String  | -         |
-| child        | 数据层级名称定义                                        | String  | -         |
-| initlist     | 数据                                                    | Array   | -         |
-| initShowList | 默认选中值                                              | Array   | -         |
 
 ##### area-picker Method
 

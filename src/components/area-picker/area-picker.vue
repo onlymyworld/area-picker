@@ -2,14 +2,16 @@
 	 	<div class="ant-address">
 	 		<v-form-item label="地址" required  :prop="prop" v-if="vbeauty" >
 		 		<div class="ant-address__text" @click="toggleDropdown" >
-		 			<v-input type="text" placeholder="请选择" size="middle" readonly v-bind="$attrs" :value="finish">
+		 			<v-input type="text" placeholder="请选择" size="middle" readonly v-bind="$attrs" :value="addressValue">
 		 			</v-input>
+					<span class="ant-address__clear" v-show="finish.length >= 2" @click.stop="clear"></span>
 		 		</div>
 	 		</v-form-item>
 	 		<div class="ant-address__label" v-else>
 	 			<div class="ant-address__label_inner">{{label}}：</div>
-		 		<div class="ant-address__text ant-address__border" @click="toggleDropdown" >
-		 			<span>{{finish}}</span>
+		 		<div class="ant-address__text ant-address__border ant-address__pad" @click="toggleDropdown" >
+		 			<span>{{addressValue}}</span>
+		 			<span class="ant-address__clear" v-show="finish.length >= 2" @click.stop="clear"></span>
 		 		</div>
 	 		</div>
 	 		<div class="ant-address__masklayer" v-show="showPanel" @click="toggleDropdown"></div>
@@ -18,6 +20,7 @@
 	                <li v-for="(item, index) in current" @click="showCurrent(item, index)" :class=" index == currentIndex ? 'actived' : '' ">{{item[name] ? item[name]: item.name}}</li>
 	            </ul>
 	            <ul class="ant-address__select-content">
+	            	<li class="loading" v-if="showList.length ==0 ">加载中。。。</li>
 	                <li v-for="item in showList" @click="getNext(item)" :class="current[currentIndex][clue] == item[clue] ? 'actived' : '' ">{{item[name] ? item[name] : item}}</li>
 	            </ul>
 	        </div>
@@ -83,8 +86,15 @@ export default {
 					name: "请选择"
 				}
 			],
-			finish: ""
+			finish: []
 		};
+	},
+	computed: {
+		addressValue() {
+			return this.finish
+				.map(item => (item[this.name] ? item[this.name] : ""))
+				.join(" ");
+		}
 	},
 	created() {
 		//触发用户定义的promise事件；
@@ -93,21 +103,33 @@ export default {
 
 		if (Array.isArray(this.initShowList) && this.initShowList.length > 0) {
 			this.current = [].concat(this.initShowList);
-			this.finish = this.current
-				.map(item => (item[this.name] ? item[this.name] : ""))
-				.join(" ");
+			this.finish = [].concat(
+				this.current.map(item => {
+					return {
+						[this.clue]: item[this.clue],
+						[this.name]: item[this.name]
+					};
+				})
+			);
 		}
 		if (this.mode === "0") {
 			this.list = data;
 			this.showList = this.list;
 			this.handlerRecover();
 			return;
-		} else if (this.mode === "1" || this.mode === "2") {
+		} else if (this.mode === "2") {
+			this.$emit("onload", {
+				level: 2,
+				level_code: this.current[1][this.clue]
+			});
+			this.currentIndex = 2;
+		} else if (this.mode === "1") {
 			this.showCurrent(this.current[0], 0);
 		}
 	},
 	watch: {
 		finish(val) {
+			this.addressValue;
 			this.$emit("input", val);
 		},
 		initlist: function() {
@@ -128,19 +150,23 @@ export default {
 				case 1:
 					let opts = this.current[0];
 					let city = this.initlist;
-					this.list[String(opts[this.clue]).trim()][
-						this.child
-					] = this.convert(city);
 					this.showList = city;
+					if (JSON.stringify(this.list) !== "{}") {
+						this.list[String(opts[this.clue]).trim()][
+							this.child
+						] = this.convert(city);
+					}
 					break;
 				case 2:
 					let _city = Object.assign({}, this.current[1]);
 					let county = this.initlist;
 					const province = this.current[0][this.clue];
-					this.list[province][this.child][_city[this.clue]][
-						this.child
-					] = this.convert(county);
 					this.showList = county;
+					if (JSON.stringify(this.list) !== "{}") {
+						this.list[province][this.child][_city[this.clue]][
+							this.child
+						] = this.convert(county);
+					}
 			}
 		}
 	},
@@ -234,12 +260,17 @@ export default {
 				case 2: {
 					this.current[2] = Object.assign({}, opts);
 					this.current = [].concat(this.current);
-					this.finish = this.current
-						.map(item => (item[this.name] ? item[this.name] : ""))
-						.join(" ");
+					this.finish = [].concat(
+						this.current.map(item => {
+							return {
+								[this.clue]: item[this.clue],
+								[this.name]: item[this.name]
+							};
+						})
+					);
 					this.showPanel = false;
 					//用户捕获事件
-					this.$emit("onchange", this.current);
+					this.$emit("onchange", this.finish);
 					break;
 				}
 				default: {
@@ -278,6 +309,7 @@ export default {
 		getCity(opts) {
 			if (
 				this.list &&
+				JSON.stringify(this.list) !== "{}" &&
 				this.list[String(opts[this.clue]).trim()][this.child]
 			) {
 				const data = this.list[String(opts[this.clue]).trim()][
@@ -295,6 +327,7 @@ export default {
 			const province = this.current[0][this.clue];
 			if (
 				this.list &&
+				JSON.stringify(this.list) !== "{}" &&
 				this.list[province][this.child] &&
 				this.list[province][this.child][city[this.clue]] &&
 				this.list[province][this.child][city[this.clue]][this.child]
@@ -310,8 +343,15 @@ export default {
 			this.getAddress(_opts);
 		},
 		getAddress(opts) {
+			this.showList = [];
 			this.$emit("onload", opts);
 			return;
+		},
+		clear() {
+			this.finish = [];
+			this.current = [{ name: "请选择" }];
+			this.showList = this.list;
+			this.currentIndex = 0;
 		}
 	}
 };
