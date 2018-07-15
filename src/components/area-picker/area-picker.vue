@@ -187,7 +187,10 @@ export default {
 					let county = this.initlist;
 					const province = this.current[0][this.clue];
 					this.showList = county;
-					if (JSON.stringify(this.list) !== "{}") {
+					if (
+						JSON.stringify(this.list) !== "{}" &&
+						this.list[province][this.child]
+					) {
 						this.list[province][this.child][_city[this.clue]][
 							this.child
 						] = this.convert(county);
