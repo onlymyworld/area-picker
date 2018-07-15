@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import areaPicker from "./area-picker";
+import areaPicker from "./area-picker/index";
 export default {
 	data() {
 		return {};
