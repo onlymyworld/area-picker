@@ -116,20 +116,20 @@ export default {
 				switch (ln) {
 					case 1:
 						this.$emit("onload", {
-							level: 0
+							level: 1
 						});
 						this.currentIndex = 0;
 						break;
 					case 2:
 						this.$emit("onload", {
-							level: 1,
+							level: 2,
 							level_code: this.current[0][this.clue]
 						});
 						this.currentIndex = 1;
 						break;
 					case 3:
 						this.$emit("onload", {
-							level: 2,
+							level: 3,
 							level_code: this.current[1][this.clue]
 						});
 						this.currentIndex = 2;
