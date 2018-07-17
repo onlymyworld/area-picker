@@ -91,7 +91,7 @@ export default {
         };
     },
     async created() {
-      	if (this.mode === 0) this.list = origidata;
+      	if (this.mode === 0) this.list = data;
         if (Array.isArray(this.initShowList) && this.initShowList.length > 0) {
             this.current = [].concat(this.initShowList);
             this.finish = this.current

@@ -1,7 +1,6 @@
 <template>
   		<area-picker
-	    	@onchange ="getChoosed" 
-	    	v-model="areaValues"
+	    	@onchange ="getChoosed"
     	></area-picker>
 </template>
 
@@ -10,13 +9,7 @@ import areaPicker from './area-picker/index';
 
 export default {
     data() {
-        return {
-            areaValues: [
-                { id: '610000', area_name: '陕西省' },
-                { id: '610700', area_name: '汉中市' },
-                { id: '610724', area_name: '西乡县' },
-            ],
-        };
+        return {};
     },
     methods: {
         getChoosed(val) {
