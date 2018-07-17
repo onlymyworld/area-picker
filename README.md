@@ -162,6 +162,7 @@ export default {
 
 参数  | 说明 | 类型 | 默认值
 ---|---|---|---|
+ data | 获取区域数据的函数，初始化必需参数，返回值必须是Promise对象,该函数默认接收一个请求参数， | Function | -
  mode | 0:使用默认数据；1:一次加载所有数据；2:分块加载数据 | Number | 0
  clue | 选项的id | String | id
  name | 选项的名称 | String | area_name
@@ -180,7 +181,7 @@ export default {
 #####  area-picker Method
 
 事件  | 说明 | 参数 
----|---|---|---|
+---|---|---|
 onchange | 选择的值发生变化的时候触发，默认返回选中区域数组 | value
 
 

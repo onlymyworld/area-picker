@@ -28,52 +28,53 @@
 </template>
 
 <script type="text/ecmascript-6">
-import data from './data.js'
+import data from './data.js';
+
 export default {
     props: {
         initShowList: {
             type: Array,
-            default: () => []
+            default: () => [],
         },
         // 数据加载函数，返回值必须是Promise;
         // 默认情况下必须传递data参数；如果使用本地数据渲染表格，业务代码中将获取本地数据包装为Promise即可。
         data: {
             type: Function,
-            default:()=>{}
+            default: () => {},
         },
-        mode:{
-        	type:Number,
-        	default:0 //0:使用默认数据，1:一次性加载所有数据，2:使用分块加载
+        mode: {
+        	type: Number,
+        	default: 0, // 0:使用默认数据，1:一次性加载所有数据，2:使用分块加载
         },
         clue: {
-			type: String,
-			default: "id"
-		},
-		name: {
-			type: String,
-			default: "area_name"
-		},
-		child: {
-			type: String,
-			default: "child"
-		},
-		label: {
-			type: String,
-			default: "地址"
-		},
-		vbeauty: {
-			type: Boolean,
-			default: false
-		},
-		prop: String,
-		orgdata:{ //当一次性加载数据时，是否需要重组数据，
-			type:Boolean,
-			default:true 
-		},
-		pid:{  //使用重组数据方法时，制定关联字段key
-			type:String,
-			default:'parent_id'
-		}
+            type: String,
+            default: 'id',
+        },
+        name: {
+            type: String,
+            default: 'area_name',
+        },
+        child: {
+            type: String,
+            default: 'child',
+        },
+        label: {
+            type: String,
+            default: '地址',
+        },
+        vbeauty: {
+            type: Boolean,
+            default: false,
+        },
+        prop: String,
+        orgdata: { // 当一次性加载数据时，是否需要重组数据，
+            type: Boolean,
+            default: true, 
+        },
+        pid: { // 使用重组数据方法时，制定关联字段key
+            type: String,
+            default: 'parent_id',
+        },
     },
     data() {
         return {
@@ -83,31 +84,31 @@ export default {
             currentIndex: 0, // 1,2,3
             current: [
                 {
-                    name: "请选择"
-                }
+                    name: '请选择',
+                },
             ],
-            finish: ""
+            finish: '',
         };
     },
     async created() {
-      	if(this.mode === 0) this.list = origidata;
+      	if (this.mode === 0) this.list = origidata;
         if (Array.isArray(this.initShowList) && this.initShowList.length > 0) {
             this.current = [].concat(this.initShowList);
             this.finish = this.current
-                        .map(item => (item[this.name] ? item[this.name] : ""))
-                        .join(" ");
+                .map(item => (item[this.name] ? item[this.name] : ''))
+                .join(' ');
         }
-        var ln = this.current.length;
-        if(this.mode === 0){
-       	 	this.showCurrent({},ln-1);
+        const ln = this.current.length;
+        if (this.mode === 0) {
+       	 	this.showCurrent({}, ln - 1);
         	return;
         } 
-        this.showCurrent({},ln-1);
+        this.showCurrent({}, ln - 1);
     },
-    watch:{
-		finish() {
-			this.$emit("input", this.getValues());
-		}
+    watch: {
+        finish() {
+            this.$emit('input', this.getValues());
+        },
     },
     methods: {
         closeDropdown() {
@@ -115,48 +116,46 @@ export default {
         },
         toggleDropdown() {
             this.showPanel = !this.showPanel;
-            //有默认值，清除默认值后展示面板，加载一级目录数据
-			if (
-				this.showPanel &&
-				JSON.stringify(this.list) === "{}" &&
-				this.currentIndex === 0
-			) {
-				this.showCurrent({},0)
-			}
+            // 有默认值，清除默认值后展示面板，加载一级目录数据
+            if (
+                this.showPanel
+				&& JSON.stringify(this.list) === '{}'
+				&& this.currentIndex === 0
+            ) {
+                this.showCurrent({}, 0);
+            }
         },
-        //一次性加载数据时，重组数据，
-		orgData(data=[], parent_id) {
-			var tree = {};
-			var temp;
-			for (var i = 0; i < data.length; i++) {
-				if (data[i][this.pid] === parent_id) {
-					var obj = data[i];
-					temp = this.orgData(data, data[i][this.clue]);
-					if (JSON.stringify(temp) != "{}") {
-						obj[this.child] = temp;
-					}
-					tree[data[i][this.clue]] = obj;
-				}
-			}
-			return tree;
-		},
-        getValues(){
+        // 一次性加载数据时，重组数据，
+        orgData(data = [], parent_id) {
+            const tree = {};
+            let temp;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i][this.pid] === parent_id) {
+                    const obj = data[i];
+                    temp = this.orgData(data, data[i][this.clue]);
+                    if (JSON.stringify(temp) != '{}') {
+                        obj[this.child] = temp;
+                    }
+                    tree[data[i][this.clue]] = obj;
+                }
+            }
+            return tree;
+        },
+        getValues() {
             let area = [].concat(
-                    this.current.map(item => {
-                        return item[this.clue] && {
-                            [this.clue]: item[this.clue],
-                            [this.name]: item[this.name]
-                        };
-                    })
-                );
-            area = this.finish =="" ? [] : area;
+                this.current.map(item => item[this.clue] && {
+                    [this.clue]: item[this.clue],
+                    [this.name]: item[this.name],
+                }),
+            );
+            area = this.finish == '' ? [] : area;
             return area;
         },
-        async loadData(opts){
+        async loadData(opts) {
         	this.showList = [];
         	const promiseResult = await this.data(opts);
-        	//一次性加载所有数据，并且使用默认的重组数据方法
-        	if(this.mode === 1 && orgdata){
+        	// 一次性加载所有数据，并且使用默认的重组数据方法
+        	if (this.mode === 1 && orgdata) {
         		return this.orgData(promiseResult);
         	}
         	return promiseResult;
@@ -177,7 +176,7 @@ export default {
                     break;
                 }
                 default: {
-                    console.error("传入参数错误");
+                    console.error('传入参数错误');
                 }
             }
         },
@@ -189,7 +188,7 @@ export default {
                     const current = [].concat(this.current);
                     current[0] = Object.assign(opts);
                     current[1] = Object.assign({
-                        name: "请选择"
+                        name: '请选择',
                     });
 
                     if (opts.code !== this.current[0].code) {
@@ -206,7 +205,7 @@ export default {
                     const county = await this.getCounty(opts);
                     this.current[1] = Object.assign({}, opts);
                     this.current[2] = Object.assign({
-                        name: "请选择"
+                        name: '请选择',
                     });
                     this.current = [].concat(this.current);
                     this.showList = county;
@@ -216,16 +215,16 @@ export default {
                 case 2: {
                     this.current[2] = Object.assign({}, opts);
                     this.current = [].concat(this.current);
-                    this.$emit("change", this.current);
+                    this.$emit('change', this.current);
                     this.finish = this.current
-                        .map(item => (item[this.name] ? item[this.name] : ""))
-                        .join(" ");
+                        .map(item => (item[this.name] ? item[this.name] : ''))
+                        .join(' ');
                     this.showPanel = false;
-                    this.$emit("onchange", this.getValues());
+                    this.$emit('onchange', this.getValues());
                     break;
                 }
                 default: {
-                    console.error("传入参数错误");
+                    console.error('传入参数错误');
                 }
             }
         },
@@ -233,7 +232,7 @@ export default {
         convert(list) {
             const data = {};
             if (Array.isArray(list)) {
-                list.forEach(item => {
+                list.forEach((item) => {
                     data[String(item.code).trim()] = item;
                 });
             }
@@ -248,7 +247,7 @@ export default {
         },
 
         async getProvince() {
-            if (this.list && JSON.stringify(this.list) !=="{}") {
+            if (this.list && JSON.stringify(this.list) !== '{}') {
                 return this.list;
             }
             const province = await this.loadData({ level: 1 });
@@ -257,16 +256,16 @@ export default {
         },
 
         async getCity(opts) {
-            if (this.list && JSON.stringify(this.list) !=="{}" && this.list[String(opts[this.clue]).trim()][this.child]) {
+            if (this.list && JSON.stringify(this.list) !== '{}' && this.list[String(opts[this.clue]).trim()][this.child]) {
                 const data = this.list[String(opts[this.clue]).trim()][this.child];
                 return this.reconvert(data);
             }
             const city = await this.loadData({
                 level: 2,
-                level_code: opts[this.clue]
+                level_code: opts[this.clue],
             });
-            //兼容回显
-            if(JSON.stringify(this.list) !== "{}"){
+            // 兼容回显
+            if (JSON.stringify(this.list) !== '{}') {
             	this.list[String(opts[this.clue]).trim()][this.child] = this.convert(city);
             }
             return city;
@@ -275,35 +274,35 @@ export default {
             const city = Object.assign({}, opts);
             const province = this.current[0][this.clue];
             if (
-                this.list &&
-                JSON.stringify(this.list) !=="{}" && 
-                this.list[province][this.child] &&
-                this.list[province][this.child][city[this.clue]] &&
-                this.list[province][this.child][city[this.clue]][this.child]
+                this.list
+                && JSON.stringify(this.list) !== '{}' 
+                && this.list[province][this.child]
+                && this.list[province][this.child][city[this.clue]]
+                && this.list[province][this.child][city[this.clue]][this.child]
             ) {
                 const data = this.list[province][this.child][city[this.clue]][this.child];
                 return this.reconvert(data);
             }
             const county = await this.loadData({
                 level: 3,
-                level_code: city[this.clue]
+                level_code: city[this.clue],
             });
-            if(JSON.stringify(this.list) !== "{}" && JSON.stringify(this.list[province][this.child])){
+            if (JSON.stringify(this.list) !== '{}' && JSON.stringify(this.list[province][this.child])) {
             	 this.list[province][this.child][city[this.clue]][this.child] = this.convert(
-                	county
+                	county,
             	);
             }
             return county;
         },
         clear() {
-			this.finish = '';
-			this.current = [{ name: "请选择" }];
-			this.showList = this.list;
-			this.currentIndex = 0;
-			this.$emit("onchange", this.getValues());
-		}
+            this.finish = '';
+            this.current = [{ name: '请选择' }];
+            this.showList = this.list;
+            this.currentIndex = 0;
+            this.$emit('onchange', this.getValues());
+        },
 
-    }
+    },
 };
 </script>
 

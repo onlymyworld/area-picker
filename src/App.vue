@@ -5,13 +5,13 @@
 </template>
 
 <script>
-import Area from "./components/area";
+import Area from './components/area';
 
 export default {
-  name: "App",
-  components: {
-    Area
-  }
+    name: 'App',
+    components: {
+        Area,
+    },
 };
 </script>
 
