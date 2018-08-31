@@ -17,7 +17,7 @@
 	}
 	&__text {
 		display: inline-block;
-		width: auto;
+		width: 300px;
 		min-width: 120px;
 		height: 28px;
 		line-height: 28px;
@@ -59,8 +59,9 @@
 		position: absolute;
 		left: 0;
 		top: 0;
+		width:100%;
 		margin-top: 32px;
-		width: 630px;
+		// width: 630px;
 		background-color: white;
 		z-index: 10;
 		border: 1px solid #d1d1d1;
@@ -73,7 +74,8 @@
 		border-bottom: 1px solid #d1d1d1;
 
 		li {
-			padding: 0 10px;
+			padding: 0 8px;
+			text-align: center;
 			border-right: 1px solid #d1d1d1;
 			cursor: pointer;
 			list-style: none;
@@ -85,12 +87,16 @@
 	}
 	&__select-content {
 		width: 100%;
-		display: flex;
-		padding: 10px;
+		display: block;
+		height: 300px;
+		overflow: scroll;
+		// padding: 10px;
 		flex-flow: wrap;
 		li {
-			width: 150px;
+			width: 100%;
+			padding-left: 10px;
 			line-height: 32px;
+			height: 32px;
 			cursor: pointer;
 			list-style: none;
 			&:hover {
@@ -98,9 +104,11 @@
 				font-weight: bold;
 			}
 		}
+		
 		.actived {
-			color: #49a9ee;
+			color: #61a5d6;
 			font-weight: bold;
+			background: #e6f1f9;
 		}
 	}
 }

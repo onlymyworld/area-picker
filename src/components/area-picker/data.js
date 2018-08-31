@@ -23300,11 +23300,5 @@ export default {
                 },
             },
         },
-    },
-    900000: {
-        id: 900000,
-        area_name: '钓鱼岛',
-        area_code: 'DiaoyuDao',
-        area_parent_id: 0,
-    },
+    }
 };
