@@ -40,18 +40,51 @@ export default {
 };
 </script>
 ```
+##### 设置默认值,
+
+```
+<area-picker
+            value="陕西省 西安市 新城区"
+            split=" "
+            :level=3
+	    	@change ="getChoosed"
+            @hide="areaHide"
+			@show="areaShow"
+    	></area-picker>
+
+   export default {
+        data() {
+            return {};
+        },
+        methods: {
+            getChoosed(val) {
+                console.log(val);
+            },
+            areaHide() {
+                console.log('隐藏');
+            },
+            areaShow() {
+                console.log('显示');
+            },
+        },
+        components: { 'area-picker': areaPicker },
+    };
+```
+
+
 
 ##### 一次性加载所有数据
 注意：mode = 1,可以使用v-model获取修改后的数据；
 ```
 <template>
     <area-picker
+			value=""
 	    	:data = "getAreas"
 	    	:mode=1
 	    	child="child",
 	    	pid="parent_id",
 	    	orgdata={true}
-	    	@onchange ="getChoosed">
+	    	@change ="getChoosed">
     	</area-picker>
 </template>
 
@@ -64,7 +97,7 @@ export default {
 		getChoosed(val) {
 			console.log(val);
 		},
-		async getAreas(){
+		getAreas(){
 		    //返回一个promise
 		    return Promise
 		}
@@ -81,7 +114,7 @@ export default {
     <area-picker
 	    	:data = "getAreas"
 	    	:mode=2
-	    	@onchange ="getChoosed">
+	    	@change ="getChoosed">
     	</area-picker>
 </template>
 
@@ -94,7 +127,7 @@ export default {
 		getChoosed(val) {
 			console.log(val);
 		},
-		async getAreas(){
+		getAreas(){
 		    //返回一个promise
 		    return Promise
 		}
@@ -115,7 +148,7 @@ export default {
 	    	:mode=2
 	    	prop="address"
 	    	v-model="customForm.address"
-	    	@onchange ="getChoosed">
+	    	@change ="getChoosed">
     	</area-picker>
     </v-form>
 </template>
@@ -146,7 +179,7 @@ export default {
 		getChoosed(val) {
 			console.log(val);
 		},
-		async getAreas(){
+		getAreas(){
 		    //返回一个promise
 		    return Promise
 		}

@@ -243,16 +243,19 @@ export default {
                 case 0: {
                     const current = [].concat(this.current);
                     current[0] = Object.assign(opts);
-                    if (opts.code !== this.current[0].code) {
-                        this.current = current.slice(0, 2);
-                    } else {
-                        this.current = current;
-                    }
+                    // currentcurrent.slice(0, 2);
+                    // if (opts.code !== this.current[0].code) {
+                    //     this.current = current.slice(0, 2);
+                    // } else {
+                    //     this.current = current;
+                    // }
                     if (this.level === 1) {
+                        this.current = current.slice(0, 2);
                         this.getValue();
                         return false;
                     }
                     current[1] = Object.assign(defaultInfo);
+                    this.current = current.slice(0, 2);
                     const city = await this.getCity(opts);
                     this.showList = city;
                     this.currentIndex = 1;
