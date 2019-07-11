@@ -1,24 +1,22 @@
 <template>
-		 <v-form-item label="地址" required  :prop="prop" >
-		 	<div class="ant-address">
-		 		<div class="ant-address__text" @click="toggleDropdown" >
-		 			<v-input type="text" placeholder="请选择" size="middle" readonly v-bind="$attrs" :value="finish"></v-input>
-		 		</div>
-		 		<div class="ant-address__masklayer" v-show="showPanel" @click="toggleDropdown"></div>
-		 		<div class="ant-address__select" v-if="showPanel">
-		            <ul class="ant-address__select-header">
-		                <li v-for="(item, index) in current" @click="showCurrent(item, index)" :class=" index == currentIndex ? 'actived' : '' ">{{item[label] ? item[label]: item.name}}</li>
-		            </ul>
-		            <ul class="ant-address__select-content">
-		                <li v-for="item in showList" @click="getNext(item)" :class="current[currentIndex][clue] == item[clue] ? 'actived' : '' ">{{item[label] ? item[label] : item}}</li>
-		            </ul>
-		        </div>
-		 	</div>
-   		 </v-form-item>
+<div class="picker">
+	<label class="picker_label">地址：</label>
+	<div>
+		<div class="picker__text" @click="toggleDropdown" >
+			<input type="text" class="picker__input" placeholder="请选择" size="middle" readonly v-bind="$attrs" :value="finish" />
+		</div>
+		<div class="picker__masklayer" v-show="showPanel" @click="toggleDropdown"></div>
+		<div class="picker__select" v-if="showPanel">
+			<ul class="picker__select-header">
+				<li v-for="(item, index) in current" @click="showCurrent(item, index)" :class="index == currentIndex ? 'actived' : ''">{{item[label] ? item[label]: item.name}}</li>
+			</ul>
+			<ul class="picker__select-content">
+				<li v-for="item in showList" @click="getNext(item)" :class="current[currentIndex][clue] == item[clue] ? 'actived' : '' ">{{item[label] ? item[label] : item}}</li>
+			</ul>
+		</div>
+	</div>
+</div>
 </template>
-
-
-
 
 <script type="text/ecmascript-6">
 //不管是一次性加载所有的数据还是分块加载，都需要对数据进行处理。
@@ -27,10 +25,18 @@
 import data from "./data.js";
 export default {
 	props: {
+		value: {
+			type:String,
+			default:'',
+		},
 		initShowList: {
 			type: Array,
 			default: () => []
 		},
+		level:{
+			type: Number,
+			default: 3,
+		}, //省市县层级，省；省市；省市县
 		clue: {
 			type: String,
 			default: "id"
@@ -76,7 +82,8 @@ export default {
 		//触发用户定义的promise事件；
 		//this.showList = await this.getProvince();
 		// 初始化回显
-
+		this.getInitList();
+		console.log(this.initlist);
 		if (Array.isArray(this.initShowList) && this.initShowList.length > 0) {
 			this.current = [].concat(this.initShowList);
 			this.finish = this.current
@@ -95,6 +102,13 @@ export default {
 	watch: {
 		finish(val) {
 			this.$emit("input", val);
+		},
+		showPanel(val){
+			if(val){
+				this.$emit('onshow');
+			}else{
+				this.$emit('onhide');
+			}
 		},
 		initlist: function() {
 			this.showList = this.initlist;
@@ -131,6 +145,29 @@ export default {
 		}
 	},
 	methods: {
+		getInitList(){
+			let address = this.value.split(';');
+			for(let i in data){
+				if(data[i].area_name === address[0]){
+					this.initShowList.push({ id: i, area_name: address[0] });
+				}
+				if(data[i].child && address[1]){
+					for(let j in data[i].child){
+						if(data[i].child[j].area_name === address[1]){
+							this.initShowList.push({ id: j, area_name: address[1] });
+						}
+						let county = data[i].child[j].child;
+						if(county && address[2]){
+							for(let k in county){
+								if(county[k].area_name === address[2]){
+									this.initShowList.push({ id: k, area_name: address[2] });
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		handlerRecover() {
 			const ctl = this.current.length;
 			switch (ctl) {
@@ -192,47 +229,44 @@ export default {
 			const index = this.currentIndex;
 			switch (index) {
 				case 0: {
-					this.getCity(opts);
+
 					const current = [].concat(this.current);
 					current[0] = Object.assign(opts);
-					current[1] = Object.assign({
-						name: "请选择"
-					});
-
 					if (opts[this.clue] !== this.current[0][this.clue]) {
 						this.current = current.slice(0, 2);
 					} else {
 						this.current = current;
 					}
+					if(this.level == 1){
+						this.getValue();
+						return false;
+					}
+					this.getCity(opts);
+					current[1] = Object.assign({
+						name: "请选择"
+					});
+					this.current = current;
 					this.currentIndex = 1;
 					break;
 				}
 				case 1: {
-					this.getCounty(opts);
 					this.current[1] = Object.assign({}, opts);
+					if(this.level == 2){
+						this.getValue();
+						return false;
+					}
 					this.current[2] = Object.assign({
 						name: "请选择"
 					});
 					this.current = [].concat(this.current);
 					this.currentIndex = 2;
+					this.getCounty(opts);
 					break;
 				}
 				case 2: {
 					this.current[2] = Object.assign({}, opts);
 					this.current = [].concat(this.current);
-					this.finish = this.current
-						.map(item => (item[this.label] ? item[this.label] : ""))
-						.join(" ");
-					this.current.map((item, index) => {
-						this.finishArr.push({
-							[this.clue]: item[this.clue],
-							[this.label]: item[this.label]
-						});
-					});
-					this.showPanel = false;
-					//用户捕获事件
-
-					this.$emit("onchange", this.finishArr);
+					this.getValue();
 					break;
 				}
 				default: {
@@ -240,7 +274,20 @@ export default {
 				}
 			}
 		},
-
+		getValue(){
+			this.showPanel = false;
+			this.finishArr = [];
+			this.finish = this.current
+					.map(item => (item[this.label] ? item[this.label] : ""))
+					.join(" ");
+			this.current.map((item, index) => {
+				this.finishArr.push({
+					[this.clue]: item[this.clue],
+					[this.label]: item[this.label]
+				});
+			});
+			this.$emit("onchange", this.finishArr);
+		},
 		convert(list) {
 			const data = {};
 			if (Array.isArray(list)) {
@@ -266,6 +313,10 @@ export default {
 				return;
 			}
 			let opts = { level: 1 };
+			if(this.level == 1){
+				this.showPanel = false;
+				return false;
+			}
 			this.getAddress(opts);
 		},
 		getCity(opts) {
@@ -280,6 +331,10 @@ export default {
 				return;
 			}
 			let _opts = { level: 2, level_code: opts[this.clue] };
+			if(this.level == 2){
+				this.showPanel = false;
+				return false;
+			}
 			this.getAddress(_opts);
 		},
 
@@ -310,20 +365,30 @@ export default {
 };
 </script>
 <style lang="less">
-.form-wrap {
+.picker {
+	display: flex;
 	margin: 10px;
+	&_label {
+		height: 28px;
+		line-height: 28px;
+	}
 }
-
-.ant-address {
+.picker {
 	position: relative;
 	&__text {
 		width: auto;
-		height: 28px;
-		line-height: 28px;
 		padding-left: 8px;
-		border-radius: 5px;
 		cursor: pointer;
 		overflow: hidden;
+	}
+	&__input {
+		border: 1px solid #ccc;
+		line-height: 28px;
+		height: 28px;
+		border-radius: 2px;
+		padding-left: 5px;
+		outline: none;
+		min-width: 150px;
 	}
 	&__masklayer {
 		position: fixed;
@@ -348,7 +413,7 @@ export default {
 		display: flex;
 		border-bottom: 1px solid #d1d1d1;
 		li {
-			padding: 0 10px;
+			padding: 10px 10px;
 			border-right: 1px solid #d1d1d1;
 			cursor: pointer;
 		}
@@ -364,6 +429,7 @@ export default {
 		flex-flow: wrap;
 		li {
 			width: 150px;
+			line-height: 28px;
 			cursor: pointer;
 			&:hover {
 				color: #49a9ee;

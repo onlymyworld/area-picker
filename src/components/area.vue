@@ -1,14 +1,14 @@
 <template>
   <div class="hello">
   	<v-form :model="customForm" :rules="customRules" ref='customRuleForm'>
-  		<area-picker
-	    	@onchange ="getChoosed" 
-	    	mode="0"
-	    	prop="address"
-	    	v-model="customForm.address"
-    	></area-picker>
-    	
     	<area-picker
+	    	@onchange ="getChoosed" 
+			@onhide="areaHide"
+			@onshow="areaShow"
+	    	mode="0"
+			value="四川省;成都市;武侯区"
+    	></area-picker>
+		<!-- <area-picker
 	    	@onload = "getAreas"
 	    	@onchange ="getChoosed" 
 	    	:initlist="initlist" 
@@ -28,10 +28,9 @@
 	    	child="child"
 	    	clue="id"
 	    	label="area_name">
-    	</area-picker>
-    	
+    	</area-picker>-->
     	<v-button type="primary" style="margin-right:10px" @click.prevent="submitForm('customRuleForm')">提交</v-button>
-  	</v-form>
+  	</v-form> 
     
   </div>
 </template>
@@ -90,6 +89,14 @@ export default {
 		},
 		getChoosed(val) {
 			console.log(val);
+		},
+		areaHide(){
+			//触发关闭选择省份面板
+			console.log('隐藏')
+		},
+		areaShow(){
+			//触发打开选择省份面板
+			console.log('显示')
 		},
 		async getAllAreas() {
 			fetch("http://localhost:8081/getAll", {
